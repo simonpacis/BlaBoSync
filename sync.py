@@ -1,8 +1,10 @@
 #!/usr/local/bin/python3
 
 import requests, json, rich, time, os, shutil, sys, re
+
 from rich.console import Console
 from rich.progress import track
+from rich.prompt import Prompt
 
 from selenium import webdriver
 from selenium.webdriver.common.keys import Keys
@@ -34,7 +36,7 @@ download_dir = os.path.expanduser('~') + "/Downloads/blabotmp"
 def url(url):
     if "http" in url or "https" in url:
         return url
-    else
+    else:
         return main_url + url
 
 def cleanhtml(raw_html):
@@ -43,7 +45,6 @@ def cleanhtml(raw_html):
   return cleantext
 
 def login():
-    console.print("Logging in as " + username, style="white")
     driver.get(main_url)
     usernamefield = driver.find_element_by_id('user_id')
     passwordfield = driver.find_element_by_id('password')
@@ -51,7 +52,6 @@ def login():
     passwordfield.send_keys(password)
     loginbutton = driver.find_element_by_id('entry-login')
     loginbutton.click()
-    console.print("Logged in. Please wait for next pages to load.", style="white")
     return True 
 
 def movefiles(course_download_dir):
@@ -67,7 +67,6 @@ def movefiles(course_download_dir):
     for file in files:
         shutil.move(download_dir + "/" + files[i], course_download_dir + "/" + files[i])
         i = i + 1
-    console.print("Move finished.", style="white") 
 
 def create_shortcut(url, course_download_dir, title):
     f = open(course_download_dir + "/" + title +".url", "w")
@@ -86,7 +85,7 @@ def get_course(course_url, course_download_dir):
     html = driver.page_source
     soup = BeautifulSoup(html, 'html.parser')
     title = soup.find(id='crumb_1').contents[0].strip()
-    console.print("Getting course materials of \"" + title + "\"", style="white")
+    console.print("Getting course materials of course \"" + title + "\"", style="bold white")
     listcontainer = soup.find(id='content_listContainer')
     folders = listcontainer.findChildren("li" , recursive=False)
     for folder in folders:
@@ -95,7 +94,7 @@ def get_course(course_url, course_download_dir):
         folder_title = folder_anchor.find('span').contents[0]
         folder_title = "".join(x for x in folder_title if x.isalnum() or x in "._- ")
         folder_title = " ".join(folder_title.split()).title()
-        console.print("Download files for course: \"" + folder_title + "\"", style="white")
+        console.print("Download files for unit: \"" + folder_title + "\"", style="bold white")
         folder_dir = course_download_dir + "/" + folder_title
         if os.path.exists(folder_dir) == True:
             shutil.rmtree(folder_dir)
@@ -104,12 +103,11 @@ def get_course(course_url, course_download_dir):
         folder_soup = BeautifulSoup(driver.page_source, 'html.parser')
         folder_listcontainer = folder_soup.find(id='content_listContainer')
         files = folder_listcontainer.findChildren('li', recursive=False)
-        for file in files:
+        for file in track(files, description="Downloading " + str(len(files)) + " files..."):
             file_parent = file.find('h3')
             try:
                 anchor = file_parent.find('a')
                 if anchor != None:
-                    console.print("Downloading " + anchor['href'], style="white")
                     if "panopto" not in anchor['href']:
                         driver.get(url(anchor['href']))
                     else:
@@ -127,12 +125,12 @@ def get_course(course_url, course_download_dir):
                     create_markdown(attachments_title, attachments_body, folder_dir)
             except Exception as e:
                 console.print(e)
+        files = os.listdir(download_dir)
+        files = [x for x in files if not x.startswith(".")]
+        while len(files) > 0:
+            movefiles(folder_dir)
             files = os.listdir(download_dir)
             files = [x for x in files if not x.startswith(".")]
-            while len(files) > 0:
-                movefiles(folder_dir)
-                files = os.listdir(download_dir)
-                files = [x for x in files if not x.startswith(".")]
 
 
 def main():
@@ -146,9 +144,12 @@ def main():
     else:
         shutil.rmtree(os.path.expanduser('~') + "/Downloads/blabotmp")
         os.mkdir(os.path.expanduser('~') + "/Downloads/blabotmp")
-    login()
+    with console.status("Logging in as "+username+"...", spinner="growVertical"):
+        login()
+    i_course = 1
     for course in courses:
         get_course(course['url'], course['download_dir'])
+        i_course = i_course + 1
 
 console.print("", style="bold green")
 main()
