@@ -1,6 +1,7 @@
-# BlaBoSync 
+# BlaBoTool 
 My university uses Blackboard to share files, discussions etc.
-The idea behind BlaBoSync is to scrape the website and download all material for the courses (which are always uploaded as .docx or .pdf) locally, and then when run again, if a file has changed remotely, replace the local file with the new version from Blackboard.
+The idea behind BlaBoTool is to be able to control and use different aspects of Blackboard through CLI.
+For now, only BlaBoSync exists, which automatically downloads course material to your local computer.
 
 ## Installation
 Download the following requirements using pip: selenium, markdownify, requests, beautifulsoup4, rich
@@ -12,4 +13,5 @@ BlaBoSync uses the chromedriver.
 
 Copy the COURSES_blank.json and CREDENTIALS_blank.json to COURSES.json and CREDENTIALS.json, and enter the necessary information.
 
-Run python3 sync.py, and watch BlaBoSync download your stuff.
+Run python3 tool.py, and watch BlaBoSync download your stuff.
+

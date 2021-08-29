@@ -1,20 +1,4 @@
-#!/usr/local/bin/python3
-
-import requests, json, rich, time, os, shutil, sys, re
-
-from rich.console import Console
-from rich.progress import track
-from rich.prompt import Prompt
-
-from selenium import webdriver
-from selenium.webdriver.common.keys import Keys
-from selenium.webdriver import Chrome
-from selenium.webdriver.chrome.options import Options
-
-from bs4 import BeautifulSoup
-from markdownify import markdownify
-
-console = Console()
+from common import *
 
 with open('CREDENTIALS.json') as json_file:
     data = json.load(json_file)
@@ -24,13 +8,7 @@ with open('CREDENTIALS.json') as json_file:
 with open('COURSES.json') as json_file:
     courses = json.load(json_file)
 
-main_url = "https://abdn.blackboard.com"
-login_form_url = "/webapps/login/"
 
-options = Options()
-options.headless = True
-options.add_experimental_option( "prefs", {'plugins.always_open_pdf_externally': True, 'download.default_directory': os.path.expanduser('~') + "/Downloads/blabotmp"})
-driver = None
 download_dir = os.path.expanduser('~') + "/Downloads/blabotmp"
 
 def url(url):
@@ -135,9 +113,6 @@ def get_course(course_url, course_download_dir):
 
 def main():
     global driver
-    console.rule("[bold green]Welcome to BlaBoSync")
-    driver = webdriver.Chrome(options=options)
-    driver.implicitly_wait(30)
 
     if os.path.exists(os.path.expanduser('~') + "/Downloads/blabotmp") == False:
         os.mkdir(os.path.expanduser('~') + "/Downloads/blabotmp")
@@ -150,8 +125,5 @@ def main():
     for course in courses:
         get_course(course['url'], course['download_dir'])
         i_course = i_course + 1
-
-console.print("", style="bold green")
-main()
-console.print("", style="bold green")
+    input("Done downloading. Press enter to continue.")
 
