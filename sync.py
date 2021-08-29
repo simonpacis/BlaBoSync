@@ -12,7 +12,6 @@ from selenium.webdriver.chrome.options import Options
 from bs4 import BeautifulSoup
 from markdownify import markdownify
 
-
 console = Console()
 
 with open('CREDENTIALS.json') as json_file:
@@ -25,17 +24,18 @@ with open('COURSES.json') as json_file:
 
 main_url = "https://abdn.blackboard.com"
 login_form_url = "/webapps/login/"
-jar = requests.cookies.RequestsCookieJar()
-session = HTMLSession()
+
 options = Options()
 options.headless = True
 options.add_experimental_option( "prefs", {'plugins.always_open_pdf_externally': True, 'download.default_directory': os.path.expanduser('~') + "/Downloads/blabotmp"})
-driver = webdriver.Chrome(options=options)
-driver.implicitly_wait(30)
+driver = None
 download_dir = os.path.expanduser('~') + "/Downloads/blabotmp"
 
 def url(url):
-    return main_url + url
+    if "http" in url or "https" in url:
+        return url
+    else
+        return main_url + url
 
 def cleanhtml(raw_html):
   cleanr = re.compile('<.*?>')
@@ -136,7 +136,11 @@ def get_course(course_url, course_download_dir):
 
 
 def main():
+    global driver
     console.rule("[bold green]Welcome to BlaBoSync")
+    driver = webdriver.Chrome(options=options)
+    driver.implicitly_wait(30)
+
     if os.path.exists(os.path.expanduser('~') + "/Downloads/blabotmp") == False:
         os.mkdir(os.path.expanduser('~') + "/Downloads/blabotmp")
     else:

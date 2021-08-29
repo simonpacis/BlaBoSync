@@ -6,9 +6,9 @@ The idea behind BlaBoSync is to scrape the website and download all material for
 Download the following requirements using pip: selenium, markdownify, requests, beautifulsoup4, rich
 
 ### Installing selenium
-Follow these directions to make sure Selenium is installede correctly.
+Follow these directions to make sure Selenium is installed correctly.
 BlaBoSync uses the chromedriver.
-[https://chromedriver.chromium.org/downloads](https://chromedriver.chromium.org/downloads).
+[https://selenium-python.readthedocs.io/installation.html](https://selenium-python.readthedocs.io/installation.html)
 
 Copy the COURSES_blank.json and CREDENTIALS_blank.json to COURSES.json and CREDENTIALS.json, and enter the necessary information.
 
