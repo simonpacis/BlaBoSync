@@ -3,11 +3,12 @@
 import requests, json, rich, time, os, shutil, sys, re
 from rich.console import Console
 from rich.progress import track
-from requests_html import HTMLSession
+
 from selenium import webdriver
 from selenium.webdriver.common.keys import Keys
 from selenium.webdriver import Chrome
 from selenium.webdriver.chrome.options import Options
+
 from bs4 import BeautifulSoup
 from markdownify import markdownify
 
