@@ -1,10 +1,5 @@
 from common import *
 
-with open('CREDENTIALS.json') as json_file:
-    data = json.load(json_file)
-    username = data['username']
-    password = data['password']
-
 with open('COURSES.json') as json_file:
     courses = json.load(json_file)
 
@@ -22,15 +17,6 @@ def cleanhtml(raw_html):
   cleantext = re.sub(cleanr, '', str(raw_html))
   return cleantext
 
-def login():
-    driver.get(main_url)
-    usernamefield = driver.find_element_by_id('user_id')
-    passwordfield = driver.find_element_by_id('password')
-    usernamefield.send_keys(username)
-    passwordfield.send_keys(password)
-    loginbutton = driver.find_element_by_id('entry-login')
-    loginbutton.click()
-    return True 
 
 def movefiles(course_download_dir):
     files = os.listdir(download_dir) 
@@ -119,8 +105,6 @@ def main():
     else:
         shutil.rmtree(os.path.expanduser('~') + "/Downloads/blabotmp")
         os.mkdir(os.path.expanduser('~') + "/Downloads/blabotmp")
-    with console.status("Logging in as "+username+"...", spinner="growVertical"):
-        login()
     i_course = 1
     for course in courses:
         get_course(course['url'], course['download_dir'])
