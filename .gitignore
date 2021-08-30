@@ -3,7 +3,7 @@ __pycache__
 .DS_Store
 Session.vim
 CREDENTIALS.json
-COURSES.json
+courses.json
 *.swp
 *~
 *.swo

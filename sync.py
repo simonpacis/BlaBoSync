@@ -1,10 +1,30 @@
 from common import *
 
-with open('COURSES.json') as json_file:
-    courses = json.load(json_file)
+def save_setup():
+    with open('courses.json', 'w') as course_file:
+        json.dump(courses, course_file)
+
+def add_course():
+    global courses
+    console.print(Panel("Please enter the relative URL to the course materials you wish to download."))
+    course_url = input("> ")
+    console.print(Panel("Please enter the directory in which the downloaded materials should be stored."))
+    course_dl_dir = input("> ")
+    courses.append({"url": course_url, "download_dir": course_dl_dir})
+    console.print(Panel("Course added. Do you want to add another one?"))
+    prompt = input("> (y/n) ")
+    if prompt == "y":
+        add_course()
+    else:
+        save_setup()
+
+def sync_setup():
+    global courses
+    courses = []
+    console.print(Panel("You have not yet defined the courses from which materials should be downloaded. Time to add the first one!"))
+    add_course()
 
 
-download_dir = os.path.expanduser('~') + "/Downloads/blabotmp"
 
 def url(url):
     if "http" in url or "https" in url:
@@ -100,6 +120,15 @@ def get_course(course_url, course_download_dir):
 def main():
     global driver
 
+    if os.path.isfile("courses.json"):
+        with open('courses.json') as json_file:
+            courses = json.load(json_file)
+    else:
+        sync_setup()
+        with open('courses.json') as json_file:
+            courses = json.load(json_file)
+
+    download_dir = os.path.expanduser('~') + "/Downloads/blabotmp"
     if os.path.exists(os.path.expanduser('~') + "/Downloads/blabotmp") == False:
         os.mkdir(os.path.expanduser('~') + "/Downloads/blabotmp")
     else:

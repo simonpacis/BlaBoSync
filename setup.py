@@ -26,5 +26,6 @@ def main():
     readConfig()
     username = config.get('main', 'username')
     password = config.get('main', 'password')
+    quit_prog()
 
 

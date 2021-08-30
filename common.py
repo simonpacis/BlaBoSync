@@ -1,4 +1,4 @@
-import requests, json, rich, time, os, shutil, sys, re, configparser, base64
+import requests, json, rich, time, os, shutil, sys, re, configparser, base64, importlib, imp
 from datetime import datetime
 
 from rich.console import Console
@@ -17,8 +17,8 @@ from selenium.webdriver.chrome.options import Options
 from bs4 import BeautifulSoup
 from markdownify import markdownify
 
-
 config = configparser.ConfigParser()
+
 
 def login(passw):
     driver.get(config.get('main', 'main_url'))
@@ -83,10 +83,27 @@ username = config.get('main', 'username')
 password = config.get('main', 'password')
 decrypted = False
 logged_in = False
+courses = []
 
 writeConfig()
-
 
 def clear():
     os.system('cls' if os.name == 'nt' else 'clear')
 
+def dynamic_imp(name):
+    try:
+        fp, path, desc = imp.find_module(name)
+    except ImportError:
+        print ("module not found: " + name)
+    try:
+        example_package = imp.load_module(name, fp,
+                                          path, desc)
+
+    except Exception as e:
+        print(e)
+    return example_package 
+
+def quit_prog():
+    console.print("Please restart BlaBoSync for changes to take effect.")
+    driver.quit()
+    sys.exit(0)

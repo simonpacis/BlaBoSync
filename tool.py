@@ -1,6 +1,13 @@
 from common import *
-import sync
-import setup
+
+modules = [
+        {"import": "sync", "menu": True, "text": "Download course materials (BlaBoSync)", "clear": True},
+        {"import": "configure", "menu": True, "text": "Modify configuration file", "clear": False},
+        {"import": "setup", "menu": False}
+        ]
+
+for module in modules:
+    globals()[module['import']] = dynamic_imp(module['import'])
 
 def main():
     global set_clear, decrypted, password, logged_in, username
@@ -15,7 +22,15 @@ def main():
 
         lefthand_panel = Panel.fit("[bold]Last ran:[/bold] " + last_ran + "\n[bold]Blackboard URL:[/bold] " + config.get('main', 'main_url') +"\n[bold]Login form URL:[/bold] " + login_form_url + "\n[bold]Username:[/bold] " + config.get('main', 'username') + "\n[bold]Password:[/bold] " + hidden, title="Configuration")
 
-        righthand_panel = Panel("[bold]Please select your desired operation from the list below:[/bold]\n\n0: Exit\n1: Modify configuration file\n2: Download course materials (BlaBoSync)")
+        righthand_panel = "[bold]Please select your desired operation from the list below:[/bold]\n"
+
+        i = 1
+        for module in (module for module in modules if module['menu']):
+            righthand_panel = righthand_panel + "\n" + str(i) + ": " + module['text'] 
+            i = i + 1
+
+        righthand_panel = righthand_panel + "\n0: Exit"
+        righthand_panel = Panel(righthand_panel)
 
         panels = [lefthand_panel, righthand_panel]
 
@@ -41,15 +56,13 @@ def main():
 
     prompt = Prompt.ask(">") 
 
+    menu_modules = list(module for module in modules if module['menu'])
     if prompt == "0":
         clear()
+        driver.quit()
         sys.exit(0)
-    elif prompt == "1":
-        console.print("Not implemented yet.")
-        set_clear = False
-    elif prompt == "2":
-        sync.main()
     else:
+        globals()[menu_modules[int(prompt)-1]['import']].main()
         pass
     main()
 
@@ -72,9 +85,10 @@ def setup_screen():
         main()
     else:
         setup_screen()
-
-if not main_url == "none":
-    main()
-else:
-    setup_screen()
-
+try:
+    if not config.get('main', 'main_url') == "none":
+        main()
+    else:
+        setup_screen()
+except KeyboardInterrupt:
+    driver.quit()
