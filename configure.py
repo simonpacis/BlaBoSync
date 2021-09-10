@@ -14,15 +14,18 @@ def main():
     console.print(panel)
     choice = input("> ")
     if choice == "0":
-        quit_prog()
+        quit_prog(True)
         return True
 
     if list(mainconfig)[int(choice)-1] == "encrypted":
         console.print("You cannot edit this value. Please change the password to set encryption status of your password.")
         main()
+    elif list(mainconfig)[int(choice)-1] == "last_ran":
+        console.print("You cannot edit this value.")
+        main()
     elif list(mainconfig)[int(choice)-1] == "password":
         print(Panel("Would you like to encrypt the password for your Blackboard installation? This requires you to enter an encyption key that only you know, and that you must type in every time you run BlaBoTool. Type y for yes, or n for no."))
-        password = input("> (y/n ")
+        password = input("> (y/n) ")
         if password == "y":
             print(Panel("Please enter the password for your Blackboard installation."))
             password = input("> ")

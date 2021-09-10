@@ -6,11 +6,13 @@ def save_setup():
 
 def add_course():
     global courses
+    console.print(Panel("Please enter the name of the course."))
+    course_name = input("> ")
     console.print(Panel("Please enter the relative URL to the course materials you wish to download."))
     course_url = input("> ")
     console.print(Panel("Please enter the directory in which the downloaded materials should be stored."))
     course_dl_dir = input("> ")
-    courses.append({"url": course_url, "download_dir": course_dl_dir})
+    courses.append({"name": course_name, "url": course_url, "download_dir": course_dl_dir})
     console.print(Panel("Course added. Do you want to add another one?"))
     prompt = input("> (y/n) ")
     if prompt == "y":
@@ -18,24 +20,35 @@ def add_course():
     else:
         save_setup()
 
+def modify_courses():
+    global courses
+    console.print(Panel("[bold]Would you like to add or remove a course?[/bold]\n\n1: Add a course\n2: Remove a course\n0: Go back"))
+
+    prompt = input("> ")
+    if prompt == "1":
+        add_course()
+    elif prompt == "2":
+        remove_course()
+    else:
+        return True
+
+def remove_course():
+    global courses
+    course_str = "[bold]Please choose from the list which course you would like to remove.[/bold]"
+    i = 1
+    for course in courses:
+        course_str = course_str + "\n" + str(i) + ": " + course['name']
+        i = i + 1
+    console.print(Panel(course_str))
+    course_id = input("> ")
+    # Remove from courses list
+    save_setup()
+
 def sync_setup():
     global courses
     courses = []
     console.print(Panel("You have not yet defined the courses from which materials should be downloaded. Time to add the first one!"))
     add_course()
-
-
-
-def url(url):
-    if "http" in url or "https" in url:
-        return url
-    else:
-        return main_url + url
-
-def cleanhtml(raw_html):
-  cleanr = re.compile('<.*?>')
-  cleantext = re.sub(cleanr, '', str(raw_html))
-  return cleantext
 
 
 def movefiles(course_download_dir):
@@ -95,7 +108,7 @@ def get_course(course_url, course_download_dir):
                     if "panopto" not in anchor['href']:
                         driver.get(url(anchor['href']))
                     else:
-                        create_shortcut(anchor['href'], folder_dir, cleanhtml(anchor.contents[0]))
+                        create_shortcut(anchor['href'], folder_dir, anchor.contents[0].get_text( ' ', strip=True))
                 else:
                     attachments = file.find_all('ul', class_='attachments')
                     anchors = file.find_all('a')
@@ -117,8 +130,8 @@ def get_course(course_url, course_download_dir):
             files = [x for x in files if not x.startswith(".")]
 
 
-def main():
-    global driver
+def main(go_to_download = "true"):
+    global driver, courses
 
     if os.path.isfile("courses.json"):
         with open('courses.json') as json_file:
@@ -127,6 +140,14 @@ def main():
         sync_setup()
         with open('courses.json') as json_file:
             courses = json.load(json_file)
+
+    if go_to_download == "false":
+        console.print(Panel("[bold]Please select your desired operation from the list below:[/bold]\n\n1: Download course materials\n2: Modify courses\n0: Go back"))
+        prompt = input("> ")
+        if prompt == "2":
+            modify_courses()
+        elif prompt == "0":
+            return True
 
     download_dir = os.path.expanduser('~') + "/Downloads/blabotmp"
     if os.path.exists(os.path.expanduser('~') + "/Downloads/blabotmp") == False:
